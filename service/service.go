@@ -16,6 +16,7 @@ type Service struct {
 }
 
 type ServiceRegistration struct {
+	Kind           api.ServiceKind
 	ID             string
 	Service        string
 	Port           int
@@ -37,6 +38,10 @@ func NewService(
 
 	checkId := util.NewCheckID(registration.ID)
 
+	if registration.Kind == "" {
+		registration.Kind = api.ServiceKindTypical
+	}
+
 	return &Service{
 		ServiceRegistration: registration,
 		checkId:             checkId,
@@ -51,21 +56,18 @@ func (s *Service) Register() error {
 	deregisterAfter := timeout * 2
 
 	registration := &api.AgentServiceRegistration{
+		Kind: s.Kind,
 		ID:   s.ID,
 		Name: s.Service,
 		Port: s.Port,
 		Meta: map[string]string{
-			"svc_id": s.ID,
+			"id": s.ID,
 		},
 		Tags: []string{
 			s.ID,
 		},
 		Connect: &api.AgentServiceConnect{
 			Native: true,
-			SidecarService: &api.AgentServiceRegistration{
-				Name: fmt.Sprintf("%s-sidecar-proxy", s.Service),
-				Port: s.ProxyEnvoyPort,
-			},
 		},
 		Check: &api.AgentServiceCheck{
 			Name:                           "Healty kub 😃",
@@ -77,14 +79,14 @@ func (s *Service) Register() error {
 		},
 	}
 
-	// if s.Meta != nil {
-	// 	for k, v := range s.Meta {
-	// 		if k == "id" {
-	// 			continue
-	// 		}
-	// 		registration.Meta[k] = v
-	// 	}
-	// }
+	if s.Meta != nil {
+		for k, v := range s.Meta {
+			if k == "id" {
+				continue
+			}
+			registration.Meta[k] = v
+		}
+	}
 
 	if err := s.consulClient.Agent().ServiceRegister(registration); err != nil {
 		return err

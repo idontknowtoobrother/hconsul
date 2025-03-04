@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/hashicorp/consul/api"
 	"github.com/idontknowtoobrother/hconsul/service"
 )
 
@@ -15,11 +16,11 @@ func main() {
 	mailService, err := service.NewService(
 		"localhost:8500",
 		service.ServiceRegistration{
+			Kind:    api.ServiceKindTypical,
 			Service: "mail-service",
 			ID:      "mail-1",
 			Meta: map[string]string{
-				"version":    "v1",
-				"datacenter": "th-east-1",
+				"api_version": "v1",
 			},
 			Port:           10000,
 			ProxyEnvoyPort: 8181,
@@ -36,11 +37,11 @@ func main() {
 	factoryService, err := service.NewService(
 		"localhost:8500",
 		service.ServiceRegistration{
+			Kind:    api.ServiceKindTypical,
 			Service: "factory-service",
 			ID:      "factory-1",
 			Meta: map[string]string{
-				"version":    "v1",
-				"datacenter": "th-east-1",
+				"api_version": "v1",
 			},
 			Port:           10001,
 			ProxyEnvoyPort: 8181,
@@ -58,11 +59,11 @@ func main() {
 	paymentService, err := service.NewService(
 		"localhost:8500",
 		service.ServiceRegistration{
+			Kind:    api.ServiceKindTypical,
 			Service: "payment-service",
 			ID:      "payment-1",
 			Meta: map[string]string{
-				"version":    "v1",
-				"datacenter": "th-east-1",
+				"api_version": "v1",
 			},
 			Port:           10002,
 			ProxyEnvoyPort: 8181,
@@ -81,11 +82,11 @@ func main() {
 	receiptionService, err := service.NewService(
 		"localhost:8500",
 		service.ServiceRegistration{
+			Kind:    api.ServiceKindTypical,
 			Service: "receiption-service",
 			ID:      "receiption-1",
 			Meta: map[string]string{
-				"version":    "v1",
-				"datacenter": "th-east-1",
+				"api_version": "v1",
 			},
 			Port:           10003,
 			ProxyEnvoyPort: 8181,
@@ -101,35 +102,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	privateGatewayService, err := service.NewService(
-		"localhost:8500",
-		service.ServiceRegistration{
-			Service: "private-gateway",
-			ID:      "gateway-1",
-			Meta: map[string]string{
-				"version":    "v1",
-				"datacenter": "th-east-1",
-			},
-			Port:           10004,
-			ProxyEnvoyPort: 8181,
-			TTL:            1 * time.Minute,
-		},
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err = privateGatewayService.Register(); err != nil {
-		log.Fatal(err)
-	}
-
 	hrmService, err := service.NewService(
 		"localhost:8500",
 		service.ServiceRegistration{
+			Kind:    api.ServiceKindTypical,
 			Service: "hrm-service",
 			ID:      "hrm-1",
 			Meta: map[string]string{
-				"version":    "v1",
-				"datacenter": "th-east-1",
+				"api_version": "v1",
 			},
 			Port:           10005,
 			ProxyEnvoyPort: 8182,
@@ -143,14 +123,35 @@ func main() {
 		log.Fatal(err)
 	}
 
+	privateGatewayService, err := service.NewService(
+		"localhost:8500",
+		service.ServiceRegistration{
+			Kind:    api.ServiceKindAPIGateway,
+			Service: "private-gateway",
+			ID:      "gateway-1",
+			Meta: map[string]string{
+				"api_version": "v1",
+			},
+			Port:           10004,
+			ProxyEnvoyPort: 8181,
+			TTL:            1 * time.Minute,
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err = privateGatewayService.Register(); err != nil {
+		log.Fatal(err)
+	}
+
 	saasGatewayService, err := service.NewService(
 		"localhost:8500",
 		service.ServiceRegistration{
+			Kind:    api.ServiceKindAPIGateway,
 			Service: "saas-gateway",
 			ID:      "saas-1",
 			Meta: map[string]string{
-				"version":    "v1",
-				"datacenter": "th-east-1",
+				"api_version": "v1",
 			},
 			Port:           10006,
 			ProxyEnvoyPort: 8182,

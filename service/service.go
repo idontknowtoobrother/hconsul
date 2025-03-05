@@ -2,6 +2,9 @@ package service
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/hashicorp/consul/api"
@@ -12,7 +15,7 @@ type Service struct {
 	ServiceRegistration
 	checkId      string
 	consulClient *api.Client
-	stopCh       chan struct{}
+	stopCh       chan os.Signal
 }
 
 type ServiceRegistration struct {
@@ -42,12 +45,14 @@ func NewService(
 		registration.Kind = api.ServiceKindTypical
 	}
 
-	return &Service{
+	svc := &Service{
 		ServiceRegistration: registration,
 		checkId:             checkId,
 		consulClient:        client,
-		stopCh:              make(chan struct{}),
-	}, nil
+		stopCh:              make(chan os.Signal, 1),
+	}
+	signal.Notify(svc.stopCh, os.Interrupt, syscall.SIGTERM)
+	return svc, nil
 }
 
 func (s *Service) Register() error {
@@ -70,7 +75,7 @@ func (s *Service) Register() error {
 			Native: true,
 		},
 		Check: &api.AgentServiceCheck{
-			Name:                           "Healty kub 😃",
+			Name:                           "Agent Healty Kub 😃",
 			TTL:                            ttl.String(),
 			Timeout:                        timeout.String(),
 			Notes:                          fmt.Sprintf("TTL: %s, Timeout: %s, Will be deregistered after: %s", ttl, timeout, deregisterAfter),
@@ -97,7 +102,6 @@ func (s *Service) Register() error {
 }
 
 func (s *Service) Deregister() error {
-	close(s.stopCh)
 	return s.consulClient.Agent().ServiceDeregister(s.ID)
 }
 
@@ -106,7 +110,7 @@ func (s *Service) startHeartbeat() {
 	ticker := time.NewTicker(interval)
 
 	if err := s.consulClient.Agent().UpdateTTL(s.checkId, "healthy", api.HealthPassing); err != nil {
-		fmt.Printf("Failed to update initial TTL: %v\n", err)
+		fmt.Printf("failed to update initial TTL: %v\n", err)
 	}
 
 	go func() {
@@ -118,7 +122,10 @@ func (s *Service) startHeartbeat() {
 					fmt.Printf("Failed to update TTL: %v\n", err)
 				}
 			case <-s.stopCh:
-				fmt.Println("Stopping heartbeat")
+				fmt.Println("stopped heartbeat")
+				if err := s.Deregister(); err != nil {
+					fmt.Println(err)
+				}
 				return
 			}
 		}

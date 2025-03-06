@@ -4,6 +4,8 @@ go 1.24.0
 
 require github.com/hashicorp/consul/api v1.31.2
 
+require golang.org/x/net v0.34.0 // indirect
+
 require (
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/fatih/color v1.16.0 // indirect
@@ -21,4 +23,5 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
 	golang.org/x/sys v0.29.0 // indirect
+	resty.dev/v3 v3.0.0-beta.2
 )

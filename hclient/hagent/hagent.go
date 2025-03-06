@@ -40,7 +40,7 @@ func NewHAgent(consulAddr, token string) (HAgent, error) {
 }
 
 func buidAddr(service *api.CatalogService) string {
-	return fmt.Sprintf("http://%s:%d", "localhost", service.ServicePort)
+	return fmt.Sprintf("http://%s:%d", "127.0.0.1", service.ServicePort)
 }
 
 func (d *hAgent) DiscoveServiceAddr(service string, id string) (addr string, err error) {

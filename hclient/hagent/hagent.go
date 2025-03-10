@@ -14,6 +14,7 @@ const (
 type HAgent interface {
 	GetAddr() string
 	GetToken() string
+	GetDatacenter() (string, error)
 	DiscoveryService(service string) (addr string, err error)
 	DiscoveryServiceId(service string, id string) (addr string, err error)
 	NewRequest(service Service, id ServiceID) (*Request, error)
@@ -49,6 +50,18 @@ func (d *hAgent) GetAddr() string {
 
 func (d *hAgent) GetToken() string {
 	return d.token
+}
+
+func (d *hAgent) GetDatacenter() (string, error) {
+	self, err := d.client.Agent().Self()
+	if err != nil {
+		return "", err
+	}
+	datacenter, ok := self["Config"]["Datacenter"].(string)
+	if !ok {
+		return "", fmt.Errorf("datacenter not found")
+	}
+	return datacenter, nil
 }
 
 func buidAddr(service *api.CatalogService) string {

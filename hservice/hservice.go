@@ -102,7 +102,7 @@ func (s *Service) Register() error {
 }
 
 func (s *Service) Deregister() error {
-	return s.consulClient.Agent().ServiceDeregister(s.ID)
+	return s.consulClient.Agent().ServiceDeregister(s.checkId)
 }
 
 func (s *Service) startHeartbeat() {

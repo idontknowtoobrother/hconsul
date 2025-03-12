@@ -1,6 +1,8 @@
 package hagent
 
 import (
+	"fmt"
+
 	"resty.dev/v3"
 )
 
@@ -9,6 +11,7 @@ type Request struct {
 }
 
 func (d *hAgent) NewRequest(
+	schema string,
 	service Service,
 	id ServiceID,
 ) (*Request, error) {
@@ -17,7 +20,7 @@ func (d *hAgent) NewRequest(
 		return nil, err
 	}
 
-	rcl := resty.New().SetBaseURL(addr)
+	rcl := resty.New().SetBaseURL(fmt.Sprintf("%s://%s", schema, addr))
 
 	return &Request{
 		rcl: rcl,

@@ -17,7 +17,7 @@ type HAgent interface {
 	GetDatacenter() (string, error)
 	DiscoveryService(service string) (addr string, err error)
 	DiscoveryServiceId(service string, id string) (addr string, err error)
-	NewRequest(service Service, id ServiceID) (*Request, error)
+	NewRequest(schema string, service Service, id ServiceID) (*Request, error)
 }
 
 type Service = string

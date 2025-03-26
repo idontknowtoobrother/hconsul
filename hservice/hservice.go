@@ -20,6 +20,7 @@ type Service struct {
 
 type ServiceRegistration struct {
 	Kind           api.ServiceKind
+	CustomAddress  string
 	ID             string
 	Service        string
 	Port           int
@@ -61,10 +62,11 @@ func (s *Service) Register() error {
 	deregisterAfter := timeout * 2
 
 	registration := &api.AgentServiceRegistration{
-		Kind: s.Kind,
-		ID:   s.ID,
-		Name: s.Service,
-		Port: s.Port,
+		Kind:    s.Kind,
+		Address: s.CustomAddress,
+		ID:      s.ID,
+		Name:    s.Service,
+		Port:    s.Port,
 		Meta: map[string]string{
 			"id": s.ID,
 		},
@@ -102,7 +104,7 @@ func (s *Service) Register() error {
 }
 
 func (s *Service) Deregister() error {
-	return s.consulClient.Agent().ServiceDeregister(s.checkId)
+	return s.consulClient.Agent().ServiceDeregister(s.ID)
 }
 
 func (s *Service) startHeartbeat() {

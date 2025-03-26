@@ -68,6 +68,9 @@ func buidAddr(service *api.CatalogService) string {
 	if service.ServicePort == 0 {
 		return service.Address
 	}
+	if service.ServiceAddress != "" {
+		return fmt.Sprintf("%s:%d", service.ServiceAddress, service.ServicePort)
+	}
 	return fmt.Sprintf("%s:%d", service.Address, service.ServicePort)
 }
 

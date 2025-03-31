@@ -20,7 +20,8 @@ func (d *hAgent) NewRequest(
 		return nil, err
 	}
 
-	rcl := resty.New().SetBaseURL(fmt.Sprintf("%s://%s", schema, addr))
+	url := fmt.Sprintf("%s://%s", schema, addr)
+	rcl := resty.New().SetBaseURL(url)
 
 	return &Request{
 		rcl: rcl,

@@ -91,6 +91,7 @@ func (d *hAgent) DiscoveryServiceId(service string, id string) (addr string, err
 	if len(services) == 0 {
 		return "", fmt.Errorf("not found any service %s", service)
 	}
+
 	return buidAddr(services[0]), nil
 }
 

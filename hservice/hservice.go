@@ -40,11 +40,13 @@ func NewService(
 		return nil, err
 	}
 
-	checkId := util.NewCheckID(registration.ID)
+	checkId := util.NewCheckID(registration.Service, registration.ID)
 
 	if registration.Kind == "" {
 		registration.Kind = api.ServiceKindTypical
 	}
+
+	registration.ID = fmt.Sprintf("%s:%s", registration.Service, registration.ID)
 
 	svc := &Service{
 		ServiceRegistration: registration,
@@ -104,7 +106,11 @@ func (s *Service) Register() error {
 }
 
 func (s *Service) Deregister() error {
-	return s.consulClient.Agent().ServiceDeregister(s.ID)
+	err := s.consulClient.Agent().ServiceDeregister(s.ID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *Service) startHeartbeat() {
